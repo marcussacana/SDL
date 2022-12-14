@@ -193,12 +193,18 @@
 #undef __GDK__
 #define __GDK__ 1
 #endif
+
 #if defined(__PSP__)
 #undef __PSP__
 #define __PSP__ 1
 #endif
 #if defined(PS2)
 #define __PS2__ 1
+#endif
+
+#if defined(__ORBIS__) || defined(PS4)
+#undef __PS4__
+#define __PS4__ 1
 #endif
 
 /* The NACL compiler defines __native_client__ and __pnacl__

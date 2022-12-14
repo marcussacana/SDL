@@ -58,6 +58,7 @@
 #elif defined(__PSP__) && __PSP__
 #define SDL_DYNAMIC_API 0
 #elif defined(__riscos__) && __riscos__ /* probably not useful on RISC OS, since dlopen() can't be used when using static linking. */
+#elif defined(__PS4__) && __PS4__
 #define SDL_DYNAMIC_API 0
 #elif defined(__clang_analyzer__)
 #define SDL_DYNAMIC_API 0  /* Turn off for static analysis, so reports are more clear. */
@@ -69,6 +70,10 @@
 #define SDL_DYNAMIC_API 0  /* devkitARM doesn't support dynamic linking */
 #elif defined(DYNAPI_NEEDS_DLOPEN) && !defined(HAVE_DLOPEN)
 #define SDL_DYNAMIC_API 0  /* we need dlopen(), but don't have it.... */
+#endif
+
+#if defined(PS4)	// Apparently __PS4__ getting defined is missed somewhere, I get broken static builds so force the issue
+#define SDL_DYNAMIC_API 0
 #endif
 
 /* everyone else. This is where we turn on the API if nothing forced it off. */

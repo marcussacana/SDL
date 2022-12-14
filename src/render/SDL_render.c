@@ -124,8 +124,9 @@ static const SDL_RenderDriver *render_drivers[] = {
 #if SDL_VIDEO_RENDER_VITA_GXM
     &VITA_GXM_RenderDriver,
 #endif
-#if SDL_VIDEO_RENDER_SW
-    &SW_RenderDriver
+#if SDL_VIDEO_RENDER_PS4 && 0	// *FIXME* PS4_RenderDriver Disabled, it's software anyhow lets not reinvent...
+#error Use SoftRender for PS4 currently!
+	&PS4_RenderDriver,
 #endif
 };
 #endif /* !SDL_RENDER_DISABLED */

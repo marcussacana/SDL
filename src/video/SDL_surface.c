@@ -138,6 +138,7 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
         SDL_FreePalette(palette);
     }
 
+
     /* Get the pixels */
     if (surface->w && surface->h) {
         /* Assumptions checked in surface_size_assumptions assert above */
@@ -155,7 +156,9 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
             SDL_OutOfMemory();
             return NULL;
         }
+
         surface->flags |= SDL_SIMD_ALIGNED;
+
         /* This is important for bitmaps */
         SDL_memset(surface->pixels, 0, size);
     }

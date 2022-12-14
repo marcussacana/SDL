@@ -354,6 +354,10 @@ SDL_LogMessageV(int category, SDL_LogPriority priority, const char *fmt, va_list
         SDL_LockMutex(log_function_mutex);
     }
 
+#ifdef PS4
+	printf(message);	// just fucking do it 
+#endif
+
     SDL_log_function(SDL_log_userdata, category, priority, message);
 
     if (log_function_mutex) {

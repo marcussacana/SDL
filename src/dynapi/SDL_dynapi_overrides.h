@@ -27,6 +27,7 @@
 #error You should not be here.
 #endif
 
+#if 0	// *FIXME* stfu wrong intellisense on VS/cmake
 #define SDL_SetError SDL_SetError_REAL
 #define SDL_Log SDL_Log_REAL
 #define SDL_LogVerbose SDL_LogVerbose_REAL
@@ -893,3 +894,4 @@
 #define SDL_SensorGetDataWithTimestamp SDL_SensorGetDataWithTimestamp_REAL
 #define SDL_ResetHints SDL_ResetHints_REAL
 #define SDL_strcasestr SDL_strcasestr_REAL
+#endif // *FIXME*

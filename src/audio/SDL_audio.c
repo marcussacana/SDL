@@ -108,6 +108,9 @@ static const AudioBootStrap *const bootstrap[] = {
 #if SDL_AUDIO_DRIVER_N3DS
     &N3DSAUDIO_bootstrap,
 #endif
+#if SDL_AUDIO_DRIVER_PS4
+	&PS4AUDIO_bootstrap,
+#endif
 #if SDL_AUDIO_DRIVER_EMSCRIPTEN
     &EMSCRIPTENAUDIO_bootstrap,
 #endif
@@ -1491,13 +1494,11 @@ open_audio_device(const char *devname, int iscapture,
 
     if (build_stream) {
         if (iscapture) {
-            device->stream = SDL_NewAudioStream(device->spec.format,
-                                  device->spec.channels, device->spec.freq,
-                                  obtained->format, obtained->channels, obtained->freq);
+            device->stream = SDL_NewAudioStream(device->spec.format, device->spec.channels, device->spec.freq,
+									obtained->format, obtained->channels, obtained->freq);
         } else {
-            device->stream = SDL_NewAudioStream(obtained->format, obtained->channels,
-                                  obtained->freq, device->spec.format,
-                                  device->spec.channels, device->spec.freq);
+            device->stream = SDL_NewAudioStream(obtained->format, obtained->channels, obtained->freq,
+									device->spec.format, device->spec.channels, device->spec.freq);
         }
 
         if (!device->stream) {

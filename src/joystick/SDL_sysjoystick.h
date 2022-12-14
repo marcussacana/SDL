@@ -234,6 +234,7 @@ extern SDL_JoystickDriver SDL_HAIKU_JoystickDriver;
 extern SDL_JoystickDriver SDL_HIDAPI_JoystickDriver;
 extern SDL_JoystickDriver SDL_RAWINPUT_JoystickDriver;
 extern SDL_JoystickDriver SDL_IOS_JoystickDriver;
+extern SDL_JoystickDriver SDL_PS4_JoystickDriver;
 extern SDL_JoystickDriver SDL_LINUX_JoystickDriver;
 extern SDL_JoystickDriver SDL_VIRTUAL_JoystickDriver;
 extern SDL_JoystickDriver SDL_WGI_JoystickDriver;
@@ -253,3 +254,95 @@ extern SDL_JoystickDriver SDL_N3DS_JoystickDriver;
 #endif /* SDL_sysjoystick_h_ */
 
 /* vi: set ts=4 sw=4 expandtab: */
+
+
+#ifndef SCE_PAD_PORT_TYPE_STANDARD
+#define SCE_PAD_PORT_TYPE_STANDARD ORBIS_PAD_PORT_TYPE_STANDARD
+#endif
+
+#ifndef SCE_PAD_BUTTON_L3
+#define SCE_PAD_BUTTON_L3 ORBIS_PAD_BUTTON_L3
+#endif
+#ifndef SCE_PAD_BUTTON_R3
+#define SCE_PAD_BUTTON_R3 ORBIS_PAD_BUTTON_R3
+#endif
+#ifndef SCE_PAD_BUTTON_OPTIONS
+#define SCE_PAD_BUTTON_OPTIONS ORBIS_PAD_BUTTON_OPTIONS
+#endif
+#ifndef SCE_PAD_BUTTON_UP
+#define SCE_PAD_BUTTON_UP ORBIS_PAD_BUTTON_UP
+#endif
+#ifndef SCE_PAD_BUTTON_RIGHT
+#define SCE_PAD_BUTTON_RIGHT ORBIS_PAD_BUTTON_RIGHT
+#endif
+#ifndef SCE_PAD_BUTTON_DOWN
+#define SCE_PAD_BUTTON_DOWN ORBIS_PAD_BUTTON_DOWN
+#endif
+#ifndef SCE_PAD_BUTTON_LEFT
+#define SCE_PAD_BUTTON_LEFT ORBIS_PAD_BUTTON_LEFT
+#endif
+
+#ifndef SCE_PAD_BUTTON_L2
+#define SCE_PAD_BUTTON_L2 ORBIS_PAD_BUTTON_L2
+#endif
+#ifndef SCE_PAD_BUTTON_R2
+#define SCE_PAD_BUTTON_R2 ORBIS_PAD_BUTTON_R2
+#endif
+#ifndef SCE_PAD_BUTTON_L1
+#define SCE_PAD_BUTTON_L1 ORBIS_PAD_BUTTON_L1
+#endif
+#ifndef SCE_PAD_BUTTON_R1
+#define SCE_PAD_BUTTON_R1 ORBIS_PAD_BUTTON_R1
+#endif
+
+#ifndef SCE_PAD_BUTTON_TRIANGLE
+#define SCE_PAD_BUTTON_TRIANGLE ORBIS_PAD_BUTTON_TRIANGLE
+#endif
+#ifndef SCE_PAD_BUTTON_CIRCLE
+#define SCE_PAD_BUTTON_CIRCLE ORBIS_PAD_BUTTON_CIRCLE
+#endif
+#ifndef SCE_PAD_BUTTON_CROSS
+#define SCE_PAD_BUTTON_CROSS ORBIS_PAD_BUTTON_CROSS
+#endif
+#ifndef SCE_PAD_BUTTON_SQUARE
+#define SCE_PAD_BUTTON_SQUARE ORBIS_PAD_BUTTON_SQUARE
+#endif
+
+#ifndef SCE_PAD_BUTTON_TOUCH_PAD
+#define SCE_PAD_BUTTON_TOUCH_PAD ORBIS_PAD_BUTTON_TOUCH_PAD
+#endif
+
+#ifndef SCE_PAD_MAX_TOUCH_NUM
+#define SCE_PAD_MAX_TOUCH_NUM ORBIS_PAD_MAX_TOUCH_NUM
+#endif
+#ifndef SCE_PAD_MAX_DATA_NUM
+#define SCE_PAD_MAX_DATA_NUM ORBIS_PAD_MAX_DATA_NUM
+#endif
+
+#ifndef SceUserServiceUserId
+#define SceUserServiceUserId OrbisUserServiceUserId
+#endif
+
+#ifndef SceUserServiceLoginUserIdList
+#define SceUserServiceLoginUserIdList OrbisUserServiceLoginUserIdList
+#endif
+
+#ifndef SCE_USER_SERVICE_MAX_LOGIN_USERS
+#define SCE_USER_SERVICE_MAX_LOGIN_USERS ORBIS_USER_SERVICE_MAX_LOGIN_USERS
+#endif
+
+#ifndef SCE_USER_SERVICE_USER_ID_INVALID
+#define SCE_USER_SERVICE_USER_ID_INVALID (-1)
+#endif
+
+#ifndef SCE_PAD_ERROR_ALREADY_OPENED
+#define SCE_PAD_ERROR_ALREADY_OPENED ORBIS_PAD_ERROR_ALREADY_OPENED
+#endif
+
+#ifndef SCE_USER_SERVICE_ERROR_ALREADY_INITIALIZED
+#define SCE_USER_SERVICE_ERROR_ALREADY_INITIALIZED ORBIS_USER_SERVICE_ERROR_ALREADY_INITIALIZED
+#endif
+
+#ifndef ScePadData
+#define ScePadData OrbisPadData
+#endif

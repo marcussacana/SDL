@@ -110,6 +110,9 @@ static VideoBootStrap *bootstrap[] = {
 #if SDL_VIDEO_DRIVER_N3DS
     &N3DS_bootstrap,
 #endif
+#if SDL_VIDEO_DRIVER_PS4
+	&PS4_bootstrap,
+#endif
 #if SDL_VIDEO_DRIVER_KMSDRM
     &KMSDRM_bootstrap,
 #endif
@@ -226,6 +229,7 @@ SDL_CreateWindowTexture(SDL_VideoDevice *_this, SDL_Window * window, Uint32 * fo
     int i;
 
     if (!data) {
+
         SDL_Renderer *renderer = NULL;
         const char *hint = SDL_GetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION);
         const SDL_bool specific_accelerated_renderer = (
@@ -267,11 +271,15 @@ SDL_CreateWindowTexture(SDL_VideoDevice *_this, SDL_Window * window, Uint32 * fo
                 return SDL_SetError("No hardware accelerated renderers available");
             }
         }
+		
+		if (!renderer) {
+			return SDL_SetError("No hardware accelerated renderers available");
+		}
 
         SDL_assert(renderer != NULL);  /* should have explicitly checked this above. */
 
         /* Create the data after we successfully create the renderer (bug #1116) */
-        data = (SDL_WindowTextureData *)SDL_calloc(1, sizeof(*data));
+        data = (SDL_WindowTextureData *)SDL_calloc(1, sizeof(SDL_WindowTextureData));
         if (!data) {
             SDL_DestroyRenderer(renderer);
             return SDL_OutOfMemory();
@@ -1638,6 +1646,7 @@ SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint32 flags)
         h = 1;
     }
 
+
     /* Some platforms blow up if the windows are too large. Raise it later? */
     if ((w > 16384) || (h > 16384)) {
         SDL_SetError("Window is too large.");
@@ -1666,6 +1675,7 @@ SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint32 flags)
         }
     }
 
+
     if (flags & SDL_WINDOW_VULKAN) {
         if (!_this->Vulkan_CreateSurface) {
             SDL_ContextNotSupported("Vulkan");
@@ -1683,6 +1693,7 @@ SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint32 flags)
         }
     }
 
+
     /* Unless the user has specified the high-DPI disabling hint, respect the
      * SDL_WINDOW_ALLOW_HIGHDPI flag.
      */
@@ -1697,6 +1708,7 @@ SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint32 flags)
         SDL_OutOfMemory();
         return NULL;
     }
+	
     window->magic = &_this->window_magic;
     window->id = _this->next_object_id++;
     window->x = x;
@@ -1722,6 +1734,7 @@ SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint32 flags)
     window->windowed.y = window->y;
     window->windowed.w = window->w;
     window->windowed.h = window->h;
+
 
     if (flags & SDL_WINDOW_FULLSCREEN) {
         SDL_VideoDisplay *display = SDL_GetDisplayForWindow(window);
@@ -1766,6 +1779,7 @@ SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint32 flags)
     }
     _this->windows = window;
 
+
     if (_this->CreateSDLWindow && _this->CreateSDLWindow(_this, window) < 0) {
         SDL_DestroyWindow(window);
         return NULL;
@@ -1792,6 +1806,7 @@ SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint32 flags)
     flags = window->flags;
 #endif
 
+
     if (title) {
         SDL_SetWindowTitle(window, title);
     }
@@ -1799,6 +1814,7 @@ SDL_CreateWindow(const char *title, int x, int y, int w, int h, Uint32 flags)
 
     /* If the window was created fullscreen, make sure the mode code matches */
     SDL_UpdateFullscreenMode(window, FULLSCREEN_VISIBLE(window));
+
 
     return window;
 }
@@ -2709,12 +2725,12 @@ SDL_CreateWindowFramebuffer(SDL_Window * window)
         if (_this->CreateWindowFramebuffer(_this, window, &format, &pixels, &pitch) < 0) {
             return NULL;
         }
-    }
+	}
 
     if (window->surface) {
         return window->surface;
     }
-
+	
     if (!SDL_PixelFormatEnumToMasks(format, &bpp, &Rmask, &Gmask, &Bmask, &Amask)) {
         return NULL;
     }
@@ -3195,8 +3211,7 @@ SDL_OnWindowFocusGained(SDL_Window * window)
     SDL_UpdateWindowGrab(window);
 }
 
-static SDL_bool
-ShouldMinimizeOnFocusLoss(SDL_Window * window)
+static SDL_bool ShouldMinimizeOnFocusLoss(SDL_Window * window)
 {
     const char *hint;
 

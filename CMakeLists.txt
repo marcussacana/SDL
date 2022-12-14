@@ -363,6 +363,23 @@ target_include_directories(sdl-build-options BEFORE INTERFACE "${SDL2_BINARY_DIR
 if(USE_GCC OR (USE_CLANG AND NOT MSVC_CLANG))
   # !!! FIXME: do we _need_ to mess with CMAKE_C_FLAGS here?
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -idirafter \"${SDL2_SOURCE_DIR}/src/video/khronos\"")
+endif()
+
+######### *FIXME*
+
+if(PS4 OR ORBIS)
+	include(${SDL2_SOURCE_DIR}/cmake/ps4sdk.cmake)
+  set(USE_GENERATED_CONFIG Off)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DPS4 -D__ORBIS__")
+else()
+  set(USE_GENERATED_CONFIG On)
+  add_definitions(-DUSING_GENERATED_CONFIG_H)
+  include_directories(${SDL2_BINARY_DIR}/include)
+endif()
+
+include_directories(${SDL2_SOURCE_DIR}/include)
+if(USE_GCC OR USE_CLANG)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -idirafter ${SDL2_SOURCE_DIR}/src/video/khronos")
 else()
   target_include_directories(sdl-build-options INTERFACE "${SDL2_SOURCE_DIR}/src/video/khronos")
 endif()
@@ -392,6 +409,16 @@ endif()
 
 # When defined, respect CMake's BUILD_SHARED_LIBS setting:
 set(SDL_STATIC_ENABLED_BY_DEFAULT ON)
+
+if(PS4 OR ORBIS)
+  set(SDL_ATOMIC_ENABLED_BY_DEFAULT ON)
+  set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
+  set(SDL_THREADS_ENABLED_BY_DEFAULT ON)
+  set(SDL_PTHREADS_ENABLED_BY_DEFAULT ON)
+  set(SDL_LOADSO_ENABLED_BY_DEFAULT OFF)
+  set(SDL_DLOPEN_ENABLED_BY_DEFAULT OFF)
+endif()
+
 if (NOT DEFINED SDL_SHARED_ENABLED_BY_DEFAULT)
   # ...unless decided already (as for EMSCRIPTEN)
 
@@ -1404,7 +1431,43 @@ elseif(EMSCRIPTEN)
     list(APPEND EXTRA_TEST_LIBS unwind)
   endif()
 
-elseif(UNIX AND NOT APPLE AND NOT RISCOS AND NOT HAIKU)
+elseif(UNIX AND NOT APPLE AND NOT RISCOS AND NOT HAIKU OR PS4 OR ORBIS)
+  CheckPTHREAD()
+  if(SDL_AUDIO)
+    set(SDL_AUDIO_DRIVER_PS4 1)
+    file(GLOB PS4_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/ps4/*.c)
+    set(SOURCE_FILES ${SOURCE_FILES} ${PS4_AUDIO_SOURCES})
+    set(HAVE_SDL_AUDIO TRUE)
+  endif()
+#  if(SDL_FILESYSTEM)
+#    set(SDL_FILESYSTEM_PS4 1)
+#    file(GLOB PS4_FILESYSTEM_SOURCES ${SDL2_SOURCE_DIR}/src/filesystem/ps4/*.c)
+#    set(SOURCE_FILES ${SOURCE_FILES} ${PS4_FILESYSTEM_SOURCES})
+#    set(HAVE_SDL_FILESYSTEM TRUE)
+#  endif()
+  if(SDL_JOYSTICK)
+    set(SDL_JOYSTICK_PS4 1)
+    file(GLOB PS4_JOYSTICK_SOURCES ${SDL2_SOURCE_DIR}/src/joystick/ps4/*.c)
+    set(SOURCE_FILES ${SOURCE_FILES} ${PS4_JOYSTICK_SOURCES})
+    set(HAVE_SDL_JOYSTICK TRUE)
+  endif()
+  if(SDL_TIMERS)
+    set(SDL_TIMER_UNIX 1)
+    file(GLOB TIMER_SOURCES ${SDL2_SOURCE_DIR}/src/timer/unix/*.c)
+    set(SOURCE_FILES ${SOURCE_FILES} ${TIMER_SOURCES})
+    set(HAVE_SDL_TIMERS TRUE)
+
+    if(CLOCK_GETTIME)
+      set(HAVE_CLOCK_GETTIME 1)
+    endif()
+  endif()
+  if(SDL_VIDEO)
+    set(SDL_VIDEO_DRIVER_PS4 1)
+    file(GLOB PS4_VIDEO_SOURCES ${SDL2_SOURCE_DIR}/src/video/ps4/*.c)
+    set(SOURCE_FILES ${SOURCE_FILES} ${PS4_VIDEO_SOURCES})
+    set(HAVE_SDL_VIDEO TRUE)
+  endif()
+elseif(UNIX AND NOT APPLE AND NOT ANDROID)
   if(SDL_AUDIO)
     if(SYSV5 OR SOLARIS OR HPUX)
         set(SDL_AUDIO_DRIVER_SUNAUDIO 1)
@@ -2933,17 +2996,20 @@ endif()
 #   endif()
 # endif()
 
-# config variables may contain generator expression, so we need to generate SDL_config.h in 2 steps:
-# 1. replace all `#cmakedefine`'s and `@abc@`
-configure_file("${SDL2_SOURCE_DIR}/include/SDL_config.h.cmake"
-  "${SDL2_BINARY_DIR}/SDL_config.h.intermediate")
-# 2. Create the "include-config-${CMAKE_BUILD_TYPE}" folder (fails on older CMake versions when it does not exist)
-string(TOLOWER "${CMAKE_BUILD_TYPE}" lower_build_type)
-execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/include-config-${lower_build_type}")
-# 3. generate SDL_config in an build_type-dependent folder (which should be first in the include search path)
-file(GENERATE
-    OUTPUT "${SDL2_BINARY_DIR}/include-config-$<LOWER_CASE:$<CONFIG>>/SDL_config.h"
-    INPUT "${SDL2_BINARY_DIR}/SDL_config.h.intermediate")
+	
+if(USE_GENERATED_CONFIG)
+	# config variables may contain generator expression, so we need to generate SDL_config.h in 2 steps:
+	# 1. replace all `#cmakedefine`'s and `@abc@`
+	configure_file("${SDL2_SOURCE_DIR}/include/SDL_config.h.cmake"
+	  "${SDL2_BINARY_DIR}/SDL_config.h.intermediate")
+	# 2. Create the "include-config-${CMAKE_BUILD_TYPE}" folder (fails on older CMake versions when it does not exist)
+	string(TOLOWER "${CMAKE_BUILD_TYPE}" lower_build_type)
+	execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/include-config-${lower_build_type}")
+	# 3. generate SDL_config in an build_type-dependent folder (which should be first in the include search path)
+	file(GENERATE
+		OUTPUT "${SDL2_BINARY_DIR}/include-config-$<LOWER_CASE:$<CONFIG>>/SDL_config.h"
+		INPUT "${SDL2_BINARY_DIR}/SDL_config.h.intermediate")
+endif()
 
 # Prepare the flags and remove duplicates
 if(EXTRA_LDFLAGS)
@@ -3137,6 +3203,12 @@ if (SDL_ASAN)
   if((NOT USE_CLANG) OR ("${CMAKE_BUILD_TYPE}" STREQUAL ""))
     asan_check_add_debug_flag("object-size")
   endif()
+  
+  configure_file("${SDL2_SOURCE_DIR}/sdl2.pc.in"     "${SDL2_BINARY_DIR}/sdl2.pc" @ONLY)
+  configure_file("${SDL2_SOURCE_DIR}/sdl2-config.in" "${SDL2_BINARY_DIR}/sdl2-config")
+  configure_file("${SDL2_SOURCE_DIR}/sdl2-config.in" "${SDL2_BINARY_DIR}/sdl2-config" @ONLY)
+  configure_file("${SDL2_SOURCE_DIR}/SDL2.spec.in"   "${SDL2_BINARY_DIR}/SDL2.spec" @ONLY)
+
 endif()
 
 if(SDL_CCACHE)
